@@ -1,6 +1,8 @@
 package com.example.sunday.data.response.upbit
 
+import com.example.sunday.data.model.TickerProvider
 import com.google.gson.annotations.SerializedName
+import java.text.DecimalFormat
 
 data class UpbitTickerResponse (
     @SerializedName("acc_trade_price")
@@ -54,5 +56,10 @@ data class UpbitTickerResponse (
     @SerializedName("trade_timestamp")
     val tradeTimestamp: Long,
     @SerializedName("trade_volume")
-    val tradeVolume: Double
-)
+    val tradeVolume: Double,
+    val name:String
+) : TickerProvider{
+    override fun makeTicker() {
+        val price = DecimalFormat("0.###").format(tradePrice)
+    }
+}
