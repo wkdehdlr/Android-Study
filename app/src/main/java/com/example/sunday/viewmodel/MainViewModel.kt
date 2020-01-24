@@ -4,15 +4,17 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.sunday.data.model.Ticker
 import com.example.sunday.data.repository.CoinRepository
-import com.example.sunday.data.response.bithumb.BithumbTickerResponse
-import com.example.sunday.data.response.upbit.UpbitTickerResponse
+import com.example.sunday.network.response.bithumb.BithumbTickerResponse
+import com.example.sunday.network.response.coinone.CoinoneResponse
+import com.example.sunday.network.response.upbit.UpbitTickerResponse
 import com.example.sunday.util.plusAssign
 import com.example.sunday.util.withSchedulers
 import com.google.gson.Gson
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.BiFunction
+import io.reactivex.functions.Function3
 
 class MainViewModel(private val repository: CoinRepository) : ViewModel() {
 
@@ -24,7 +26,7 @@ class MainViewModel(private val repository: CoinRepository) : ViewModel() {
 
     fun abc(baseCurrency: String){
 
-        val subscribe = Single.zip(
+        compositeDisposable += Single.zip(
             repository.getMarketList()
                 .withSchedulers()
                 .map { marketResponseList ->
@@ -38,26 +40,38 @@ class MainViewModel(private val repository: CoinRepository) : ViewModel() {
                 .flatMap {
                     repository.getTickerList(it.joinToString())
                         .withSchedulers()
+                        .map {
+                            it.map {
+                                it.toTicker()
+                            }
+                        }
                 },
             repository.getBithumbTickerList()
                 .withSchedulers()
                 .map {
-                    var map2 = HashMap<String, BithumbTickerResponse>()
                     val gson = Gson()
                     it.item
                         .filter { it.key != "date" }
                         .map {(name, response) ->
-                            map2.put(name, gson.fromJson(response.toString(), BithumbTickerResponse::class.java))
-                            gson.fromJson(response.toString(), BithumbTickerResponse::class.java)
-                        }.run { this.toHashSet() }
+                            gson.fromJson(response.toString(), BithumbTickerResponse::class.java).toTicker(name)
+                        }
                 },
-            BiFunction<List<UpbitTickerResponse>, HashSet<BithumbTickerResponse>, String> { t1, t2 ->
-                 "str" }
+            repository.getCoinoneTickerList()
+                .withSchedulers()
+                .map {
+                    val gson =  Gson()
+                    it.filter { it.key != "errorCode" && it.key != "timestamp" && it.key != "result" }
+                        .map {
+                            gson.fromJson(it.value.toString(), CoinoneResponse::class.java).toTicker()
+                        }
+
+                },
+            Function3<List<Ticker>, List<Ticker>, List<Ticker>, String>{ t1, t2, t3 -> t3.toString() }
         )
             .subscribe({
-
+                Log.d("API CALL :: ", it)
             }, {
-
+                Log.e("API ERROR:: ", it.message!!)
             })
     }
     fun getBithumbTickerList() {
@@ -67,10 +81,11 @@ class MainViewModel(private val repository: CoinRepository) : ViewModel() {
             .map {
                 val gson = Gson()
                 it.item
-                    .filter { it.key != "date" }
+                    .filter {
+                        it.key != "date"
+                    }
                     .map {(name, response) ->
                         val fromJson = gson.fromJson(response.toString(), BithumbTickerResponse::class.java)
-                        fromJson.name = name
                         fromJson
                     }
             }
@@ -81,7 +96,7 @@ class MainViewModel(private val repository: CoinRepository) : ViewModel() {
 
             })
     }
-//    두군데에서 가져온 ticker를 통일시킬 필요가 있음
+//    TODO : 여러곳에서 가져온 ticker를 통일시킬 필요가 있음
 
     fun getTickerList(baseCurrency: String) {
         compositeDisposable += repository.getMarketList()

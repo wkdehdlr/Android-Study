@@ -3,5 +3,6 @@
     <string name="coin_name">코인명</string>
     <string name="upbit_name">업비트</string>
     <string name="bithumb_name">빗썸</string>
+    <string name="coinone_name">코인원</string>
     <string name="low_price">낮은가격</string>
 </resources>

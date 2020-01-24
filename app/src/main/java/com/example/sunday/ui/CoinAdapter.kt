@@ -4,8 +4,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sunday.R
 import com.example.sunday.base.BaseViewHolder
-import com.example.sunday.data.response.upbit.UpbitTickerResponse
 import com.example.sunday.databinding.ItemCoinBinding
+import com.example.sunday.network.response.upbit.UpbitTickerResponse
 
 class CoinAdapter : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
 

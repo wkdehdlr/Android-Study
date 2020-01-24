@@ -1,4 +1,4 @@
-package com.example.sunday.data.response.bithumb
+package com.example.sunday.network.response.bithumb
 
 import com.google.gson.annotations.SerializedName
 

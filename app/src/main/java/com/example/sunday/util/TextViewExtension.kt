@@ -4,7 +4,7 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
 import com.example.sunday.R
-import com.example.sunday.data.response.upbit.UpbitTickerResponse
+import com.example.sunday.network.response.upbit.UpbitTickerResponse
 import java.text.DecimalFormat
 
 

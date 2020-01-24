@@ -1,6 +1,6 @@
 package com.example.sunday.network.api
 
-import com.example.sunday.data.response.bithumb.BithumbAllResponse
+import com.example.sunday.network.response.bithumb.BithumbAllResponse
 import io.reactivex.Single
 import retrofit2.http.GET
 

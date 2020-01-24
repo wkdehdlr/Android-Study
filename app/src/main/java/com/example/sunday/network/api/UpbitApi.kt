@@ -1,7 +1,7 @@
 package com.example.sunday.network.api
 
-import com.example.sunday.data.response.upbit.UpbitMarketResponse
-import com.example.sunday.data.response.upbit.UpbitTickerResponse
+import com.example.sunday.network.response.upbit.UpbitMarketResponse
+import com.example.sunday.network.response.upbit.UpbitTickerResponse
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Query

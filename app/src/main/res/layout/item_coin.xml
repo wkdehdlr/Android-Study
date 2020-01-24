@@ -5,7 +5,7 @@
     <data>
         <variable
             name="item"
-            type="com.example.sunday.data.response.upbit.UpbitTickerResponse" />
+            type="com.example.sunday.network.response.upbit.UpbitTickerResponse" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,7 +25,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent=".25" />
+            app:layout_constraintWidth_percent=".20" />
 
         <TextView
             android:id="@+id/tv_upbit_name"
@@ -36,7 +36,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_coin_name"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent=".25" />
+            app:layout_constraintWidth_percent=".20" />
 
         <TextView
             android:id="@+id/tv_bithumb_name"
@@ -48,8 +48,19 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_upbit_name"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent=".25" />
+            app:layout_constraintWidth_percent=".20" />
 
+
+        <TextView
+            android:id="@+id/tv_coinone_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            floatNumber="@{item.signedChangeRate}"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_bithumb_name"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent=".20" />
 
         <TextView
             android:id="@+id/tv_low_price"
@@ -58,9 +69,9 @@
             floatNumber="@{item.signedChangeRate}"
             android:textAlignment="center"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/tv_bithumb_name"
+            app:layout_constraintStart_toEndOf="@id/tv_coinone_name"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent=".25" />
+            app:layout_constraintWidth_percent=".20" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

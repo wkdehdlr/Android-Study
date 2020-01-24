@@ -1,4 +1,4 @@
-package com.example.sunday.data.response.upbit
+package com.example.sunday.network.response.upbit
 
 import com.google.gson.annotations.SerializedName
 

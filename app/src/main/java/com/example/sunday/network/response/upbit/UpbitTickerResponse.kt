@@ -1,8 +1,8 @@
-package com.example.sunday.data.response.upbit
+package com.example.sunday.network.response.upbit
 
+import com.example.sunday.data.model.Ticker
 import com.example.sunday.data.model.TickerProvider
 import com.google.gson.annotations.SerializedName
-import java.text.DecimalFormat
 
 data class UpbitTickerResponse (
     @SerializedName("acc_trade_price")
@@ -26,7 +26,7 @@ data class UpbitTickerResponse (
     @SerializedName("highest_52_week_price")
     val highest52WeekPrice: Double,
     @SerializedName("low_price")
-    val lowPrice: String,
+    val lowPrice: Double,
     @SerializedName("lowest_52_week_date")
     val lowest52WeekDate: String,
     @SerializedName("lowest_52_week_price")
@@ -59,7 +59,13 @@ data class UpbitTickerResponse (
     val tradeVolume: Double,
     val name:String
 ) : TickerProvider{
-    override fun makeTicker() {
-        val price = DecimalFormat("0.###").format(tradePrice)
-    }
+    override fun toTicker() =
+        Ticker(
+            currency = market.split("-")[1],
+            baseCurrency = market.split("-")[0],
+            last = tradePrice,
+            high = highPrice,
+            low = lowPrice,
+            diff = changeRate * if (change == "RISE" ) 100 else -100,
+            volume = accTradeVolume24h)
 }

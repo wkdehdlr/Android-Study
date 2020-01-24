@@ -16,9 +16,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
 
         initViewModel()
-        viewModel.getBithumbTickerList()
-//        viewModel.getTickerList("KRW")
-//        initRecyclerView()
+//        viewModel.getBithumbTickerList()
+        viewModel.getTickerList("KRW")
+        viewModel.abc("KRW")
+        initRecyclerView()
     }
 
     fun initViewModel(){

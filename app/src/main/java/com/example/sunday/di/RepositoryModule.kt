@@ -12,5 +12,5 @@ val repositoryModule = module {
             get()
         )
     }
-    single<RemoteDataSoruce> { RemoteDataSoruceImpl(get(), get()) }
+    single<RemoteDataSoruce> { RemoteDataSoruceImpl(get(), get(), get()) }
 }
