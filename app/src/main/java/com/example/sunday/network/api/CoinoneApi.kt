@@ -12,4 +12,7 @@ interface CoinoneApi {
 
     @GET("/ticker/?")
     fun getTicker(@Query("currency") currency: String): Single<CoinoneResponse>
+
+    @GET("/ticker/?")
+    fun getExchangeTicker(@Query("currency") currency: String): Single<CoinoneResponse>
 }

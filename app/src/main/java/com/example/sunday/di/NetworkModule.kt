@@ -15,8 +15,6 @@ private const val BITHUMB_URL = "https://api.bithumb.com"
 private const val COINONE_URL = "https://api.coinone.co.kr"
 
 val networkModuelUpbit = module {
-//    single { (get() as Retrofit).create(UpbitApi::class.java) }
-
     single {
         Retrofit.Builder()
             .addConverterFactory(get())
@@ -25,13 +23,6 @@ val networkModuelUpbit = module {
             .build()
             .create(UpbitApi::class.java)
     }
-
-    single { GsonConverterFactory.create() as Converter.Factory }
-    single { RxJava2CallAdapterFactory.create() as CallAdapter.Factory }
-}
-
-val networkModuelBithumb = module {
-//    single { (get() as Retrofit).create(BithumbApi::class.java) }
 
     single {
         Retrofit.Builder()
@@ -42,10 +33,6 @@ val networkModuelBithumb = module {
             .create(BithumbApi::class.java)
     }
 
-}
-
-val networkModuleCoinone = module {
-
     single{
         Retrofit.Builder()
             .addConverterFactory(get())
@@ -54,4 +41,7 @@ val networkModuleCoinone = module {
             .build()
             .create(CoinoneApi::class.java)
     }
+
+    single { GsonConverterFactory.create() as Converter.Factory }
+    single { RxJava2CallAdapterFactory.create() as CallAdapter.Factory }
 }

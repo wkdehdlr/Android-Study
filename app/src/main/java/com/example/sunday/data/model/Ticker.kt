@@ -1,6 +1,6 @@
 package com.example.sunday.data.model
 
-data class Ticker(
+open class Ticker(
     var currency: String? = "",
     var baseCurrency: String? = "",
     var last: Double?,

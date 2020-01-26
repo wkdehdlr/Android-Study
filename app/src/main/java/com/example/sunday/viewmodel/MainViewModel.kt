@@ -5,29 +5,33 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.sunday.data.model.Ticker
-import com.example.sunday.data.repository.CoinRepository
+import com.example.sunday.data.repository.ticker.TickerRepository
+import com.example.sunday.network.response.bithumb.BithumbAllResponse
 import com.example.sunday.network.response.bithumb.BithumbTickerResponse
 import com.example.sunday.network.response.coinone.CoinoneResponse
+import com.example.sunday.network.response.upbit.UpbitMarketResponse
 import com.example.sunday.network.response.upbit.UpbitTickerResponse
+import com.example.sunday.ui.model.UTicker
 import com.example.sunday.util.plusAssign
 import com.example.sunday.util.withSchedulers
 import com.google.gson.Gson
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Function3
+import kotlin.math.min
 
-class MainViewModel(private val repository: CoinRepository) : ViewModel() {
+class MainViewModel(private val repoMap: Map<String, TickerRepository>) : ViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
 
-    private val _tickerList = MutableLiveData<List<UpbitTickerResponse>>()
-    val tickerList: LiveData<List<UpbitTickerResponse>> get() = _tickerList
+    private val _tickerList = MutableLiveData<List<UTicker>>()
+    val tickerList: LiveData<List<UTicker>> get() = _tickerList
 
 
     fun abc(baseCurrency: String){
 
         compositeDisposable += Single.zip(
-            repository.getMarketList()
+            (repoMap["Upbit"]?.getAllTicker() as Single<List<UpbitMarketResponse>>)
                 .withSchedulers()
                 .map { marketResponseList ->
                     marketResponseList.asSequence()
@@ -38,7 +42,7 @@ class MainViewModel(private val repository: CoinRepository) : ViewModel() {
                         .toList()
                 }
                 .flatMap {
-                    repository.getTickerList(it.joinToString())
+                    (repoMap["Upbit"]?.getTicker(it.joinToString()) as Single<List<UpbitTickerResponse>>)
                         .withSchedulers()
                         .map {
                             it.map {
@@ -46,7 +50,7 @@ class MainViewModel(private val repository: CoinRepository) : ViewModel() {
                             }
                         }
                 },
-            repository.getBithumbTickerList()
+            (repoMap["Bithumb"]?.getAllTicker() as Single<BithumbAllResponse>)
                 .withSchedulers()
                 .map {
                     val gson = Gson()
@@ -56,7 +60,7 @@ class MainViewModel(private val repository: CoinRepository) : ViewModel() {
                             gson.fromJson(response.toString(), BithumbTickerResponse::class.java).toTicker(name)
                         }
                 },
-            repository.getCoinoneTickerList()
+            (repoMap["Coinone"]?.getAllTicker() as Single<Map<String, Any>>)
                 .withSchedulers()
                 .map {
                     val gson =  Gson()
@@ -66,59 +70,39 @@ class MainViewModel(private val repository: CoinRepository) : ViewModel() {
                         }
 
                 },
-            Function3<List<Ticker>, List<Ticker>, List<Ticker>, String>{ t1, t2, t3 -> t3.toString() }
+            Function3<List<Ticker>, List<Ticker>, List<Ticker>, List<UTicker>>{ t1, t2, t3 ->
+                val list: MutableList<UTicker> = mutableListOf()
+                t1.forEach {
+                    val name: String? = it.currency?.toUpperCase()
+                    val last1: Double? = it.last
+                    t2.forEach{
+                        val last2: Double? = it.last
+                        if(name == it.currency?.toUpperCase()){
+                         t3.forEach {
+                             val last3: Double? = it.last
+                             if(name == it.currency?.toUpperCase()){
+                                 list.add(UTicker(name,last1,last2,last3,
+                                     when(min(min(last1!!, last2!!), last3!!)){
+                                         last1 -> "Upbit"
+                                         last2 -> "Bithumb"
+                                         else -> "Coinone"
+                                     }))
+
+                                 return@forEach
+                             }
+                         }
+                            return@forEach
+                        }
+                    }
+                }
+                list!!
+            }
         )
-            .subscribe({
-                Log.d("API CALL :: ", it)
-            }, {
-                Log.e("API ERROR:: ", it.message!!)
-            })
-    }
-    fun getBithumbTickerList() {
-        var map2 = HashMap<String, BithumbTickerResponse>()
-        compositeDisposable += repository.getBithumbTickerList()
-            .withSchedulers()
-            .map {
-                val gson = Gson()
-                it.item
-                    .filter {
-                        it.key != "date"
-                    }
-                    .map {(name, response) ->
-                        val fromJson = gson.fromJson(response.toString(), BithumbTickerResponse::class.java)
-                        fromJson
-                    }
-            }
-            .subscribe({
-                Log.d("BithumbAllResponse", it.toString())
-            },{
-                Log.e("error", it.message!!)
-
-            })
-    }
-//    TODO : 여러곳에서 가져온 ticker를 통일시킬 필요가 있음
-
-    fun getTickerList(baseCurrency: String) {
-        compositeDisposable += repository.getMarketList()
-            .withSchedulers()
-            .map { marketResponseList ->
-                marketResponseList.asSequence()
-                    .map { it.market }
-                    .filter {
-                        it.split("-")[0] == baseCurrency
-                    }
-                    .toList()
-            }
-            .flatMap {
-                repository.getTickerList(it.joinToString())
-                    .withSchedulers()
-            }
             .subscribe({
                 _tickerList.value = it
             }, {
-                Log.e("error", it.message!!)
+                Log.e("API ERROR:: ", it.message!!)
             })
-
     }
 
     override fun onCleared() {

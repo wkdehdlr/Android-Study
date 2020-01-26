@@ -1,9 +1,12 @@
 package com.example.sunday.ui
 
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import com.example.sunday.R
 import com.example.sunday.base.BaseActivity
 import com.example.sunday.databinding.ActivityMainBinding
+import com.example.sunday.ui.listener.ItemClickListener
 import com.example.sunday.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -16,8 +19,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
 
         initViewModel()
-//        viewModel.getBithumbTickerList()
-        viewModel.getTickerList("KRW")
         viewModel.abc("KRW")
         initRecyclerView()
     }
@@ -28,7 +29,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     fun initRecyclerView(){
         with(binding.recyclerView){
+            coinAdapter.setItemClickListner( object : ItemClickListener {
+                override fun onClick(view: View, position: Int) {
+                    Toast.makeText(this@MainActivity, "${position}번 리스트 선택", Toast.LENGTH_LONG).show()
+                }
+            })
             adapter = coinAdapter
+
         }
     }
+
 }

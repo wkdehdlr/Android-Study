@@ -13,4 +13,7 @@ interface UpbitApi {
 
     @GET("/v1/ticker?")
     fun getTicker(@Query("markets") markets: String) : Single<List<UpbitTickerResponse>>
+
+    @GET("/v1/ticker?")
+    fun getExchangeTicker(@Query("markets") markets: String) : Single<List<UpbitTickerResponse>>
 }

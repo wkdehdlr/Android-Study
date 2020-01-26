@@ -5,13 +5,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sunday.R
 import com.example.sunday.base.BaseViewHolder
 import com.example.sunday.databinding.ItemCoinBinding
-import com.example.sunday.network.response.upbit.UpbitTickerResponse
+import com.example.sunday.ui.listener.ItemClickListener
+import com.example.sunday.ui.model.UTicker
 
 class CoinAdapter : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
 
-    private val data = mutableListOf<UpbitTickerResponse>()
+    private val data = mutableListOf<UTicker>()
+    private lateinit var itemClickListener: ItemClickListener
 
-    fun setData(newData: List<UpbitTickerResponse>?){
+    fun setData(newData: List<UTicker>?){
         if(newData != null){
             data.clear()
             data.addAll(newData)
@@ -23,12 +25,19 @@ class CoinAdapter : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
 
     override fun getItemCount(): Int = data.size
 
-    override fun onBindViewHolder(holder: CoinViewHolder, position: Int) = holder.bindTo(data[position])
+    override fun onBindViewHolder(holder: CoinViewHolder, position: Int) {
+        holder.bindTo(data[position])
+        holder.itemView.setOnClickListener { itemClickListener.onClick(it, position) }
+    }
+
+    fun setItemClickListner(itemClickListener: ItemClickListener){
+        this.itemClickListener = itemClickListener
+    }
 
 
     class CoinViewHolder(parent: ViewGroup): BaseViewHolder<ItemCoinBinding>(R.layout.item_coin, parent){
-        fun bindTo(upbitTickerResponse: UpbitTickerResponse){
-            binding.item = upbitTickerResponse
+        fun bindTo(uTicker: UTicker){
+            binding.item = uTicker
         }
     }
 

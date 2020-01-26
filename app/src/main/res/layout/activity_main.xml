@@ -73,7 +73,7 @@
                 android:id="@+id/tv_low_price"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/low_price"
+                android:text="@string/exchange"
                 android:textAlignment="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tv_coinone_name"
