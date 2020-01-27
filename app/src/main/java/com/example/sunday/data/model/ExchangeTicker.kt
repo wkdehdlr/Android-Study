@@ -1,7 +1,7 @@
 package com.example.sunday.data.model
 
 class ExchangeTicker (
-    private val exchangeName: String,
+    val exchangeName: String,
     ticker: Ticker)
     : Ticker(currency = ticker.currency,
     baseCurrency = ticker.baseCurrency,

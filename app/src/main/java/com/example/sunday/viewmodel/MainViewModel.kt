@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.sunday.data.enums.Exchange
 import com.example.sunday.data.model.Ticker
 import com.example.sunday.data.repository.ticker.TickerRepository
 import com.example.sunday.network.response.bithumb.BithumbAllResponse
@@ -28,10 +29,10 @@ class MainViewModel(private val repoMap: Map<String, TickerRepository>) : ViewMo
     val tickerList: LiveData<List<UTicker>> get() = _tickerList
 
 
-    fun abc(baseCurrency: String){
+    fun getTicker(baseCurrency: String){
 
         compositeDisposable += Single.zip(
-            (repoMap["Upbit"]?.getAllTicker() as Single<List<UpbitMarketResponse>>)
+            (repoMap[Exchange.UPBIT.exchangeName]?.getAllTicker() as Single<List<UpbitMarketResponse>>)
                 .withSchedulers()
                 .map { marketResponseList ->
                     marketResponseList.asSequence()
@@ -42,7 +43,7 @@ class MainViewModel(private val repoMap: Map<String, TickerRepository>) : ViewMo
                         .toList()
                 }
                 .flatMap {
-                    (repoMap["Upbit"]?.getTicker(it.joinToString()) as Single<List<UpbitTickerResponse>>)
+                    (repoMap[Exchange.UPBIT.exchangeName]?.getTicker(it.joinToString()) as Single<List<UpbitTickerResponse>>)
                         .withSchedulers()
                         .map {
                             it.map {
@@ -50,7 +51,7 @@ class MainViewModel(private val repoMap: Map<String, TickerRepository>) : ViewMo
                             }
                         }
                 },
-            (repoMap["Bithumb"]?.getAllTicker() as Single<BithumbAllResponse>)
+            (repoMap[Exchange.BITHUMB.exchangeName]?.getAllTicker() as Single<BithumbAllResponse>)
                 .withSchedulers()
                 .map {
                     val gson = Gson()
@@ -60,7 +61,7 @@ class MainViewModel(private val repoMap: Map<String, TickerRepository>) : ViewMo
                             gson.fromJson(response.toString(), BithumbTickerResponse::class.java).toTicker(name)
                         }
                 },
-            (repoMap["Coinone"]?.getAllTicker() as Single<Map<String, Any>>)
+            (repoMap[Exchange.COINONE.exchangeName]?.getAllTicker() as Single<Map<String, Any>>)
                 .withSchedulers()
                 .map {
                     val gson =  Gson()
@@ -83,9 +84,9 @@ class MainViewModel(private val repoMap: Map<String, TickerRepository>) : ViewMo
                              if(name == it.currency?.toUpperCase()){
                                  list.add(UTicker(name,last1,last2,last3,
                                      when(min(min(last1!!, last2!!), last3!!)){
-                                         last1 -> "Upbit"
-                                         last2 -> "Bithumb"
-                                         else -> "Coinone"
+                                         last1 -> Exchange.UPBIT.exchangeName
+                                         last2 -> Exchange.BITHUMB.exchangeName
+                                         else -> Exchange.COINONE.exchangeName
                                      }))
 
                                  return@forEach
@@ -101,7 +102,7 @@ class MainViewModel(private val repoMap: Map<String, TickerRepository>) : ViewMo
             .subscribe({
                 _tickerList.value = it
             }, {
-                Log.e("API ERROR:: ", it.message!!)
+                Log.e("Ticker API ERROR:: ", it.message!!)
             })
     }
 

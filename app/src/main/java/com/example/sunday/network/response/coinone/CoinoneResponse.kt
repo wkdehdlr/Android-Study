@@ -1,6 +1,7 @@
 package com.example.sunday.network.response.coinone
 
 
+import com.example.sunday.data.model.ExchangeTicker
 import com.example.sunday.data.model.Ticker
 import com.example.sunday.data.model.TickerProvider
 import com.google.gson.annotations.SerializedName
@@ -46,4 +47,7 @@ data class CoinoneResponse(
             volume = volume * last)
 
     }
+
+    override fun toExchangeTicker(exchangeName: String): ExchangeTicker =
+        ExchangeTicker(exchangeName, toTicker())
 }

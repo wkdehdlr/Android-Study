@@ -1,5 +1,6 @@
 package com.example.sunday.network.response.bithumb
 
+import com.example.sunday.data.model.ExchangeTicker
 import com.example.sunday.data.model.Ticker
 import com.example.sunday.data.model.TickerProvider
 import com.google.gson.annotations.SerializedName
@@ -44,4 +45,7 @@ data class BithumbTickerResponse(
             low = minPrice,
             diff = fluctate24H,
             volume = accTradeValue24H)
+
+    override fun toExchangeTicker(exchangeName: String): ExchangeTicker =
+        ExchangeTicker(exchangeName, toTicker())
 }

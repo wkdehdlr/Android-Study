@@ -12,6 +12,10 @@ import java.text.DecimalFormat
 fun TextView.setFloatNumber(tmp: Double){
     text = DecimalFormat("0.###").format(tmp)
 }
+@BindingAdapter("intNumber")
+fun TextView.setIntNumber(tmp: Int){
+    text = tmp.toString()
+}
 
 @BindingAdapter("coinName")
 fun TextView.setCoinName(upbitTickerResponse: UpbitTickerResponse){

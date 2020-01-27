@@ -1,10 +1,11 @@
 package com.example.sunday.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import com.example.sunday.R
 import com.example.sunday.base.BaseActivity
+import com.example.sunday.data.enums.BaseCurrency
 import com.example.sunday.databinding.ActivityMainBinding
 import com.example.sunday.ui.listener.ItemClickListener
 import com.example.sunday.viewmodel.MainViewModel
@@ -19,8 +20,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
 
         initViewModel()
-        viewModel.abc("KRW")
         initRecyclerView()
+        viewModel.getTicker(BaseCurrency.KRW.toString())
     }
 
     fun initViewModel(){
@@ -30,8 +31,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     fun initRecyclerView(){
         with(binding.recyclerView){
             coinAdapter.setItemClickListner( object : ItemClickListener {
-                override fun onClick(view: View, position: Int) {
-                    Toast.makeText(this@MainActivity, "${position}번 리스트 선택", Toast.LENGTH_LONG).show()
+                override fun onClick(view: View, currency: String) {
+                    val intent = Intent(this@MainActivity, ExchangeActivity::class.java).run {
+                        putExtra("currency", currency)
+                    }
+                    startActivity(intent)
                 }
             })
             adapter = coinAdapter

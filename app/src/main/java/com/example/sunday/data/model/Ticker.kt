@@ -10,4 +10,5 @@ open class Ticker(
     var diff: Double? = null) : TickerProvider{
 
     override fun toTicker(): Ticker = this
+    override fun toExchangeTicker(exchangeName: String): ExchangeTicker = ExchangeTicker(exchangeName, this)
 }

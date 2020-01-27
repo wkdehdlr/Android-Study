@@ -1,5 +1,6 @@
 package com.example.sunday.network.response.upbit
 
+import com.example.sunday.data.model.ExchangeTicker
 import com.example.sunday.data.model.Ticker
 import com.example.sunday.data.model.TickerProvider
 import com.google.gson.annotations.SerializedName
@@ -56,8 +57,7 @@ data class UpbitTickerResponse (
     @SerializedName("trade_timestamp")
     val tradeTimestamp: Long,
     @SerializedName("trade_volume")
-    val tradeVolume: Double,
-    val name:String
+    val tradeVolume: Double
 ) : TickerProvider{
     override fun toTicker() =
         Ticker(
@@ -68,4 +68,7 @@ data class UpbitTickerResponse (
             low = lowPrice,
             diff = changeRate * if (change == "RISE" ) 100 else -100,
             volume = accTradeVolume24h)
+
+    override fun toExchangeTicker(exchangeName: String): ExchangeTicker =
+        ExchangeTicker(exchangeName, toTicker())
 }

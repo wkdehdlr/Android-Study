@@ -5,4 +5,10 @@
     <string name="bithumb_name">빗썸</string>
     <string name="coinone_name">코인원</string>
     <string name="exchange">추천거래소</string>
+
+
+    <string name="idx">순위</string>
+    <string name="exchange_name">거래소</string>
+    <string name="now_price">현재</string>
+    <string name="volume">거래대금</string>
 </resources>
