@@ -1,7 +1,7 @@
 package com.example.sunday.data.repository.ticker
 
 interface TickerRepository {
-    fun getAllTicker():Any
-    fun getTicker(currency: String):Any
-    fun getExchangeTicker(currency: String):Any
+    suspend fun getAllTicker():Any
+    suspend fun getTicker(currency: String):Any
+    suspend fun getExchangeTicker(currency: String):Any
 }
