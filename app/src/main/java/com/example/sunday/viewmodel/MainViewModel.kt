@@ -16,11 +16,13 @@ import com.example.sunday.network.response.upbit.UpbitTickerResponse
 import com.example.sunday.ui.model.UTicker
 import com.google.gson.Gson
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.math.min
 
 class MainViewModel(private val repoMap: Map<String, TickerRepository>) : ViewModel() {
+
+
+    private val handler = CoroutineExceptionHandler { _, exception -> Log.e("Coroutines MainViewModel::","Caught $exception") }
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -28,44 +30,48 @@ class MainViewModel(private val repoMap: Map<String, TickerRepository>) : ViewMo
     val tickerList: LiveData<List<UTicker>> get() = _tickerList
 
     fun getTicker(baseCurrency: String): Job{
-        return viewModelScope.launch {
+        return viewModelScope.launch(handler) {
             try{
                 val upbitMarketData = getUpbitMarketData(baseCurrency)
-                val t1 = getUpbitTickerData(upbitMarketData)
-
-                val t2 = getBithumbTickerList()
-                val t3 = getCoinoneTickerList()
-
-                val list: MutableList<UTicker> = mutableListOf()
-                t1.forEach {
-                    val name: String? = it.currency?.toUpperCase()
-                    val last1: Double? = it.last
-                    t2.forEach{
-                        val last2: Double? = it.last
-                        if(name == it.currency?.toUpperCase()){
-                            t3.forEach {
-                                val last3: Double? = it.last
-                                if(name == it.currency?.toUpperCase()){
-                                    list.add(UTicker(name,last1,last2,last3,
-                                        when(min(min(last1!!, last2!!), last3!!)){
-                                            last1 -> Exchange.UPBIT.exchangeName
-                                            last2 -> Exchange.BITHUMB.exchangeName
-                                            else -> Exchange.COINONE.exchangeName
-                                        }))
-
-                                    return@forEach
-                                }
-                            }
-                            return@forEach
-                        }
-                    }
-                }
-                _tickerList.value = list
+                val t1 = async { getUpbitTickerData(upbitMarketData) }
+                val t2 = async { getBithumbTickerList() }
+                val t3 = async { getCoinoneTickerList() }
+                _tickerList.value = computeResult(t1.await(), t2.await(), t3.await())
 
             }catch (error: Exception){
                 Log.e("Coroutine ::", error.toString())
             }
         }
+    }
+
+    private suspend fun computeResult(t1: List<Ticker>, t2: List<Ticker>, t3: List<Ticker>):MutableList<UTicker>  {
+        val list: MutableList<UTicker> = mutableListOf()
+        withContext(Dispatchers.IO){
+            t1.forEach {
+                val name: String? = it.currency?.toUpperCase()
+                val last1: Double? = it.last
+                t2.forEach{
+                    val last2: Double? = it.last
+                    if(name == it.currency?.toUpperCase()){
+                        t3.forEach {
+                            val last3: Double? = it.last
+                            if(name == it.currency?.toUpperCase()){
+                                list.add(UTicker(name,last1,last2,last3,
+                                    when(min(min(last1!!, last2!!), last3!!)){
+                                        last1 -> Exchange.UPBIT.exchangeName
+                                        last2 -> Exchange.BITHUMB.exchangeName
+                                        else -> Exchange.COINONE.exchangeName
+                                    }))
+
+                                return@forEach
+                            }
+                        }
+                        return@forEach
+                    }
+                }
+            }
+        }
+        return list
     }
 
     private suspend fun getUpbitMarketData(baseCurrency: String): List<String>{

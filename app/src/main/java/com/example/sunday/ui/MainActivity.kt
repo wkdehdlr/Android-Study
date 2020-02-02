@@ -22,7 +22,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         initViewModel()
         initRecyclerView()
         viewModel.getTicker(BaseCurrency.KRW.toString())
-//        viewModel.getTicker(BaseCurrency.KRW.toString())
     }
 
     fun initViewModel(){
@@ -43,5 +42,4 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
         }
     }
-
 }

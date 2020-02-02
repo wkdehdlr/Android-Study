@@ -16,11 +16,12 @@ import com.example.sunday.network.response.upbit.UpbitTickerResponse
 import com.example.sunday.ui.model.ETicker
 import com.google.gson.Gson
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 
 class ExchangeViewModel(private val repoMap: Map<String, TickerRepository>) : ViewModel() {
+
+    private val handler = CoroutineExceptionHandler { _, exception -> Log.e("Coroutines ExchangeViewModel ::","Caught $exception") }
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -30,31 +31,36 @@ class ExchangeViewModel(private val repoMap: Map<String, TickerRepository>) : Vi
     val liveCurrency = MutableLiveData<String>()
 
     fun getExchangeTicker(): Job{
-        return viewModelScope.launch {
+        return viewModelScope.launch(handler) {
             try{
 
-                val t1 = getUpbitExchangeTickerList()
-                val t2 = getBithumbExchangeTickerList()
-                val t3 = getCoinoneExchangeTickerList()
-
-                val list: MutableList<ETicker> = mutableListOf()
-                list.add(ETicker(0,t1[0].exchangeName, t1[0].last, t1[0].volume))
-                list.add(ETicker(0,t2.exchangeName, t2.last, t2.volume))
-                list.add(ETicker(0,t3.exchangeName, t3.last, t3.volume))
-                val sortedWith = list.sortedWith(Comparator<ETicker> { a: ETicker, b: ETicker ->
-                    when {
-                        a.nowPrice!! > b.nowPrice!! -> 1
-                        a.nowPrice!! < b.nowPrice!! -> -1
-                        else -> 0
-                    }
-                })
-                sortedWith.forEachIndexed { index, eTicker -> eTicker.idx = index + 1 }
-                _tickerList.value = sortedWith
+                val t1 = async { getUpbitExchangeTickerList() }
+                val t2 = async { getBithumbExchangeTickerList() }
+                val t3 = async { getCoinoneExchangeTickerList() }
+                _tickerList.value = computeResult(t1.await(),t2.await(), t3.await())
 
             }catch (error: Exception){
                 Log.e("error::", error.toString())
             }
         }
+
+    }
+    private suspend fun computeResult(t1: List<ExchangeTicker>, t2: ExchangeTicker, t3: ExchangeTicker): MutableList<ETicker> {
+        val list: MutableList<ETicker> = mutableListOf()
+        withContext(Dispatchers.IO){
+            list.add(ETicker(0,t1[0].exchangeName, t1[0].last, t1[0].volume))
+            list.add(ETicker(0,t2.exchangeName, t2.last, t2.volume))
+            list.add(ETicker(0,t3.exchangeName, t3.last, t3.volume))
+            val sortedWith = list.sortedWith(Comparator<ETicker> { a: ETicker, b: ETicker ->
+                when {
+                    a.nowPrice!! > b.nowPrice!! -> 1
+                    a.nowPrice!! < b.nowPrice!! -> -1
+                    else -> 0
+                }
+            })
+            sortedWith.forEachIndexed { index, eTicker -> eTicker.idx = index + 1 }
+        }
+        return list
     }
 
     private suspend fun getUpbitExchangeTickerList(): List<ExchangeTicker>{
