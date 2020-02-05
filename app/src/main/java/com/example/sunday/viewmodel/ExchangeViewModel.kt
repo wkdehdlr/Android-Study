@@ -42,6 +42,7 @@ class ExchangeViewModel(private val repoMap: Map<String, TickerRepository>) : Vi
             }catch (error: Exception){
                 Log.e("error::", error.toString())
             }
+
         }
 
     }
